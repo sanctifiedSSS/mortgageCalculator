@@ -1,26 +1,26 @@
 <?php
 
-class IndexController
+class IndexController extends BaseController
 {
-    public function indexAction() {
+    /**
+     * Action name
+     * @var string
+     */
+    public $name = 'index';
 
-        return new Response($this->render('form'));
-    }
 
-    protected function render($templateName, $vars = [])
+    public function indexAction()
     {
-        ob_start();
-        extract($vars);
-        include sprintf('templates/%s.php', $templateName);
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
+        $title = 'Ипотечный калькулятор';
+        return new Response(
+            $this->render('form', [
+                'title' => $title
+            ])
+        );
     }
 
-    public function __call($name, $arguments)
-    {
-        return new Response('Sorry but this action not found',
-            '404', 'Not found');
-    }
+
+
 
 }
+
