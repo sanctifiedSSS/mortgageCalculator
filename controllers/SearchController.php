@@ -26,54 +26,69 @@ class SearchController extends BaseController
      */
     public function searchAction(Request $request)
     {
-
         $mortgage = $request->getRequestParameter('mortgage');
+
         $initialPayment = $mortgage['initialPayment'];
         $propertyPrice = $mortgage['propertyPrice'];
         $propertyType = $mortgage['propertyType'];
         $minInitialPayment = $initialPayment / $propertyPrice * 100.0;
-        $programs = $this->mortgageRepository->getAll($propertyPrice, $minInitialPayment, $propertyType);
 
 
-
-        if ($programs === []){
-            $title = 'Ипотечыный калькулятор';
-            $noProgramsError = 'Подходящих под ваши условия программ не найдено, попробуйте смягчить условия';
-            return new Response(
-                $this->render('form', [
-                    'noProgramsError' => $noProgramsError,
-                    'title' => $title
-                ])
-            );
-        }
-
-        if ($request->isPost() && !empty($request->getRequestParameter('mortgage'))) {
+        if ($request->isPost() && !empty($mortgage)) {
 
             $validator = new Validator($request);
 
             $errors = $validator->validate($mortgage);
 
             if (empty($errors)) {
-                $title = 'Подходящие программы';
-                return new Response(
-                    $this->render('programsList', [
-                        'programs' => $programs,
-                        'title' => $title
-                    ])
-                );
+
+                $programs = $this->mortgageRepository->getByUserParameters($propertyPrice, $minInitialPayment, $propertyType);
+
+                if (!empty($programs)) {
+
+                    foreach ($programs as $program) {
+                        $monthlyPayment[$program['id']] = round(
+                            $mortgage['propertyPrice'] *
+                            (($program['interestRate'] / 12 / 100 *
+                            ((1 + $program['interestRate'] / 12 / 100) ** $mortgage['creditLines']))
+                            / ((1 + $program['interestRate'] / 12 / 100) ** $mortgage['creditLines'] - 1)),
+                            2);
+                    }
+
+                    return new Response(
+                        $this->render('programsList', [
+                            'values' => $mortgage,
+                            'programs' => $programs,
+                            'title' => 'Подходящие программы',
+                            'monthlyPayment' => $monthlyPayment
+                        ])
+                    );
+
+                } else {
+                    return new Response(
+                        $this->render('form', [
+                            'title' => 'Ипотечный калькулятор',
+                            'values' => $mortgage,
+                            'noProgramsError' => 'Подходящих под ваши условия программ не найдено, попробуйте смягчить условия'
+                        ])
+                    );
+
+                }
 
             } else {
-                $title = 'Ипотечный калькулятор';
+
                 return new Response (
                     $this->render('form', [
                         'errors' => $errors,
-                        'title' => $title
+                        'values' => $mortgage,
+                        'title' => 'Ипотечный калькулятор'
                     ])
                 );
 
             }
 
         }
+
 
     }
 

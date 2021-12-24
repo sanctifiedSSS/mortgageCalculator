@@ -8,5 +8,9 @@ $routes = [
     '/search' => [
         'controller' => 'search',
         'action' => 'search'
+    ],
+    '/show' => [
+        'controller' => 'show',
+        'action' => 'show'
     ]
 ];

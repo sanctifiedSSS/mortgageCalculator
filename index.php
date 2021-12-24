@@ -12,6 +12,7 @@ require_once 'repositories/MortgageRepository.php';
 
 require_once 'controllers/IndexController.php';
 require_once 'controllers/SearchController.php';
+require_once 'controllers/ShowController.php';
 
 include_once 'config/routes.php';
 include_once 'config/database.php';
@@ -40,7 +41,8 @@ try {
 
 $controllers = [
     'index' => new IndexController(),
-    'search' => new SearchController($mortgageRepository)
+    'search' => new SearchController($mortgageRepository),
+    'show' => new ShowController($mortgageRepository)
 ];
 
 $controller = $controllers[$route['controller']];

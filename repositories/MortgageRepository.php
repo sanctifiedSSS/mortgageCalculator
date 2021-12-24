@@ -11,12 +11,12 @@ class mortgageRepository
         $this->connection = $connection;
     }
 
-    public function getAll($propertyPrice, $minInitialPayment, $propertyType)
+    public function getByUserParameters($propertyPrice, $minInitialPayment, $propertyType)
     {
         $statement = $this->connection->prepare("SELECT * FROM programs 
-            WHERE maxLoanAmount >= {$propertyPrice} 
-            AND minInitialPayment <= {$minInitialPayment} 
-            AND propertyType = '{$propertyType}'");
+            WHERE maxLoanAmount >= $propertyPrice 
+            AND minInitialPayment <= $minInitialPayment 
+            AND propertyType = '$propertyType'");
         $statement->execute([
             "propertyPrice" => $propertyPrice,
             "minInitialPayment" => $minInitialPayment,
@@ -24,6 +24,16 @@ class mortgageRepository
         ]);
 
         return $statement->fetchAll();
+    }
+
+    public function getByID($id)
+    {
+        $statement = $this->connection->prepare("SELECT * FROM programs WHERE id = $id" );
+        $statement->execute([
+            "id" => $id
+        ]);
+
+        return $statement->fetch();
     }
 
 

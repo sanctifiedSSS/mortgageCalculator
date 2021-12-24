@@ -11,10 +11,9 @@ class IndexController extends BaseController
 
     public function indexAction()
     {
-        $title = 'Ипотечный калькулятор';
         return new Response(
             $this->render('form', [
-                'title' => $title
+                'title' => 'Ипотечный калькулятор'
             ])
         );
     }
